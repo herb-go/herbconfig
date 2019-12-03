@@ -1,4 +1,4 @@
-package unmarshaler
+package configloader
 
 import "reflect"
 

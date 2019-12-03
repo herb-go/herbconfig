@@ -1,4 +1,4 @@
-package unmarshaler
+package configloader
 
 //Type field type
 type Type string

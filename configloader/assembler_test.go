@@ -1,4 +1,4 @@
-package unmarshaler
+package configloader
 
 import "testing"
 
@@ -296,7 +296,7 @@ func TestAssembler(t *testing.T) {
 	if v.NamedLazyLoader == nil {
 		t.Fatal(v)
 	}
-	if err := v.NamedLazyLoader.LazyLoad(&lazyloaderesult); err != nil {
+	if err := v.NamedLazyLoader.LazyLoadConfig(&lazyloaderesult); err != nil {
 		t.Fatal(err)
 	}
 	if lazyloaderesult != "loader" {

@@ -1,13 +1,13 @@
-package unmarshaler
+package configloader
 
 //AssemblerLazyLoader assembler lazy loader struct
 type AssemblerLazyLoader struct {
 	Assembler *Assembler
 }
 
-//LazyLoad lazeload data into interface.
+//LazyLoadConfig lazeload data into interface.
 //Return any error if raised
-func (l *AssemblerLazyLoader) LazyLoad(v interface{}) error {
+func (l *AssemblerLazyLoader) LazyLoadConfig(v interface{}) error {
 	_, err := l.Assembler.Assemble(v)
 	return err
 }
@@ -24,5 +24,5 @@ type LazyLoaderFunc func(v interface{}) error
 type LazyLoader interface {
 	//LazyLoad lazeload data into interface.
 	//Return any error if raised
-	LazyLoad(v interface{}) error
+	LazyLoadConfig(v interface{}) error
 }

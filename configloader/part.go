@@ -1,4 +1,4 @@
-package unmarshaler
+package configloader
 
 //Part part interface
 //Part is object used to assembler struct data.

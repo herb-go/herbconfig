@@ -1,4 +1,4 @@
-package unmarshaler
+package configloader
 
 import (
 	"reflect"
@@ -499,7 +499,7 @@ var UnifierStruct = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, erro
 var UnifierLazyLoadFunc = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
 	l := NewLazyLoader()
 	l.Assembler = a
-	err := SetValue(rv, reflect.ValueOf(l.LazyLoad))
+	err := SetValue(rv, reflect.ValueOf(l.LazyLoadConfig))
 	if err != nil {
 		return false, err
 	}
