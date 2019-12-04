@@ -156,11 +156,11 @@ func TestAssembler(t *testing.T) {
 	a := EmptyAssembler.WithConfig(c).WithPart(NewMapPart(testData))
 	v := &testStruct{}
 	ok, err := a.Assemble(v)
-	if ok == false {
-		t.Fatal(ok)
-	}
 	if err != nil {
 		t.Fatal(err)
+	}
+	if ok == false {
+		t.Fatal(ok)
 	}
 	if v.FieldInt != 1 {
 		t.Fatal(v)

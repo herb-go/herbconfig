@@ -227,20 +227,18 @@ var UnifierSlice = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error
 //UnifierMap unifier for map field
 var UnifierMap = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
 	iter, err := a.Part().Iter()
-	if err != nil {
+	if err != nil || iter == nil {
 		return false, err
-	}
-	if iter == nil {
-		return false, nil
 	}
 
 	mv := reflect.MakeMap(rv.Type())
 	for iter != nil {
-		pv, err := iter.Part.Value()
+		miv := reflect.New(rv.Type().Elem()).Elem()
+		_, err = a.Config().Unifiers.UnifyReflectValue(a.WithChild(iter.Part, iter.Step), miv)
 		if err != nil {
 			return false, err
 		}
-		mv.SetMapIndex(reflect.ValueOf(iter.Step.Interface()), reflect.ValueOf(pv))
+		mv.SetMapIndex(reflect.ValueOf(iter.Step.Interface()), miv)
 		iter, err = iter.Next()
 		if err != nil {
 			return false, err
@@ -326,6 +324,7 @@ var UnifierEmptyInterface = UnifierFunc(func(a *Assembler, rv reflect.Value) (bo
 		switch rt.Kind() {
 		case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uint8, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Int8,
 			reflect.String, reflect.Bool,
+			reflect.Float32, reflect.Float64,
 			reflect.Map, reflect.Slice:
 			err = SetValue(rv, reflect.ValueOf(v))
 			if err != nil {

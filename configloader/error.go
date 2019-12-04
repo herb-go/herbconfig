@@ -35,8 +35,8 @@ func NewAssemblerError(a *Assembler, err error) error {
 
 //Error show error with assembler info
 func (e *AssemblerError) Error() string {
-	return fmt.Sprintf("unmarshaler: error: %s (%s)", e.err.Error(), ConvertPathToString(e.a.Path()))
+	return fmt.Sprintf("configloader: error: %s (%s)", e.err.Error(), ConvertPathToString(e.a.Path()))
 }
 
-//ErrUnmarshalerNotRegistered error raised when Unmarshaler not registered.
-var ErrUnmarshalerNotRegistered = errors.New("unmarshaler not registered")
+//ErrConfigLoaderNotRegistered error raised when config loader not registered.
+var ErrConfigLoaderNotRegistered = errors.New("configloader not registered")

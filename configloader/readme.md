@@ -1,4 +1,19 @@
-# unmarshaler 反序列化基础框架
+# configloader 配置加载器
+
+## 配置约定
+
+所有的驱动只确保必须支持如下类型数据
+* bool
+* int
+* int64
+* float32
+* float64
+* string
+* 以上任一类型的slice
+* 以上任一类型的map[string]xxxx
+* 仅包含以上数据的结构及相应的slice,map[string]xxxx
+
+对于其他的类型，驱动可以自发可以支持，但视为未定义行为。
 
 ## 支持的待解析解析类型
 

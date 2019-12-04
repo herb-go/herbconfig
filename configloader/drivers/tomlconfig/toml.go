@@ -1,14 +1,11 @@
-package json
+package tomlconfig
 
-import (
-	"encoding/json"
-
-	"github.com/herb-go/herbconfig/configloader"
-)
+import "github.com/BurntSushi/toml"
+import "github.com/herb-go/herbconfig/configloader"
 
 var Unmarshaler = func(data []byte, v interface{}) error {
 	var m = interface{}(nil)
-	err := json.Unmarshal(data, &m)
+	err := toml.Unmarshal(data, &m)
 	if err != nil {
 		return err
 	}
