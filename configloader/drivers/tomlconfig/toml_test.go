@@ -7,6 +7,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
+	"github.com/herb-go/herbconfig/configloader"
 	"github.com/herb-go/herbconfig/configloader/example"
 )
 
@@ -21,7 +22,7 @@ func TestToml(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = Unmarshaler(bytes, data)
+	err = configloader.LoadConfig(DefaultConfigLoaderName, bytes, data)
 	if err != nil {
 		t.Fatal(err)
 	}

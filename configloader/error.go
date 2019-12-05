@@ -38,5 +38,5 @@ func (e *AssemblerError) Error() string {
 	return fmt.Sprintf("configloader: error: %s (%s)", e.err.Error(), ConvertPathToString(e.a.Path()))
 }
 
-//ErrConfigLoaderNotRegistered error raised when config loader not registered.
-var ErrConfigLoaderNotRegistered = errors.New("configloader not registered")
+//ErrConfigLoaderNotRegistered error raised when parser not registered.
+var ErrConfigLoaderNotRegistered = errors.New("config loader not registered")

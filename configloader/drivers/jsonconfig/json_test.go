@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/herb-go/herbconfig/configloader"
+
 	"github.com/herb-go/herbconfig/configloader/example"
 )
 
@@ -20,7 +22,7 @@ func TestJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = Unmarshaler(bytes, data)
+	err = configloader.LoadConfig(DefaultConfigLoaderName, bytes, data)
 	if err != nil {
 		t.Fatal(err)
 	}
