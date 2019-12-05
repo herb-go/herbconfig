@@ -56,21 +56,6 @@ func (c *Config) GetTag(structType reflect.Type, field reflect.StructField) (*Ta
 	return c.TagParser(c, field.Tag.Get(c.TagName))
 }
 
-//CheckType check type with given assembler and reflect type.
-//Return type and any error if raised.
-func (c *Config) CheckType(a *Assembler, rt reflect.Type) (Type, error) {
-	for _, v := range *c.Checkers {
-		ok, err := v.CheckType(a, rt)
-		if err != nil {
-			return TypeUnkonwn, err
-		}
-		if ok {
-			return v.Type, nil
-		}
-	}
-	return TypeUnkonwn, nil
-}
-
 //NewConfig create new config.
 func NewConfig() *Config {
 	return &Config{
@@ -86,7 +71,7 @@ func NewConfig() *Config {
 func NewCommonConfig() *Config {
 	c := NewConfig()
 	c.TagName = "config"
-	c.Checkers.AppendWith(CommonTypeCheckers)
-	c.Unifiers.AppendWith(CommonUnifiers)
+	c.Checkers.Append(CommonTypeCheckers)
+	c.Unifiers.Append(CommonUnifiers)
 	return c
 }

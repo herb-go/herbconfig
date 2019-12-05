@@ -2,17 +2,37 @@ package configloader
 
 import "reflect"
 
-//TypeChecker value type checker struct
-type TypeChecker struct {
-	Type      Type
-	CheckType func(a *Assembler, rt reflect.Type) (bool, error)
+type TypeChecker interface {
+	CheckType(a *Assembler, rt reflect.Type) (Type, error)
+}
+
+type TypeCheckerFunc func(a *Assembler, rt reflect.Type) (Type, error)
+
+func (c TypeCheckerFunc) CheckType(a *Assembler, rt reflect.Type) (Type, error) {
+	return c(a, rt)
+}
+
+type Checker struct {
+	Type    Type
+	Checker func(a *Assembler, rt reflect.Type) (bool, error)
+}
+
+func (c *Checker) CheckType(a *Assembler, rt reflect.Type) (Type, error) {
+	ok, err := c.Checker(a, rt)
+	if err != nil {
+		return TypeUnkonwn, err
+	}
+	if ok {
+		return c.Type, nil
+	}
+	return TypeUnkonwn, nil
 }
 
 //TypeCheckers type checkers list in order type
-type TypeCheckers []*TypeChecker
+type TypeCheckers []TypeChecker
 
 //Append append checkers to last of given type checker.
-func (c *TypeCheckers) Append(checkers ...*TypeChecker) *TypeCheckers {
+func (c *TypeCheckers) Append(checkers ...TypeChecker) *TypeCheckers {
 	*c = append(*c, checkers...)
 	return c
 }
@@ -23,7 +43,7 @@ func (c *TypeCheckers) AppendWith(checkers *TypeCheckers) *TypeCheckers {
 }
 
 //Insert insert checkers to first of given type checker.
-func (c *TypeCheckers) Insert(checkers ...*TypeChecker) *TypeCheckers {
+func (c *TypeCheckers) Insert(checkers ...TypeChecker) *TypeCheckers {
 	*c = TypeCheckers(append(checkers, *c...))
 	return c
 }
@@ -33,111 +53,126 @@ func (c *TypeCheckers) InsertWith(checkers *TypeCheckers) *TypeCheckers {
 	return c.Insert(*checkers...)
 }
 
+//CheckType check type with given assembler and reflect type.
+//Return type and any error if raised.
+func (c *TypeCheckers) CheckType(a *Assembler, rt reflect.Type) (Type, error) {
+	for _, v := range *c {
+		t, err := v.CheckType(a, rt)
+		if err != nil {
+			return TypeUnkonwn, err
+		}
+		if t != TypeUnkonwn {
+			return t, nil
+		}
+	}
+	return TypeUnkonwn, nil
+}
+
 //NewTypeCheckers create new type checkers
 func NewTypeCheckers() *TypeCheckers {
 	return &TypeCheckers{}
 }
 
 //TypeCheckerString type checker for string.
-var TypeCheckerString = &TypeChecker{
+var TypeCheckerString = &Checker{
 	Type: TypeString,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.String, nil
 	},
 }
 
 //TypeCheckerBool type checker for bool.
-var TypeCheckerBool = &TypeChecker{
+var TypeCheckerBool = &Checker{
 	Type: TypeBool,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Bool, nil
 	},
 }
 
 //TypeCheckerInt type checker for int.
-var TypeCheckerInt = &TypeChecker{
+var TypeCheckerInt = &Checker{
 	Type: TypeInt,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Int, nil
 	},
 }
 
 //TypeCheckerUint type checker for uint.
-var TypeCheckerUint = &TypeChecker{
+var TypeCheckerUint = &Checker{
 	Type: TypeUint,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Uint, nil
 	},
 }
 
 //TypeCheckerInt64 type checker for int64
-var TypeCheckerInt64 = &TypeChecker{
+var TypeCheckerInt64 = &Checker{
 	Type: TypeInt64,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Int64, nil
 	},
 }
 
 //TypeCheckerUint64 type checker for uint64
-var TypeCheckerUint64 = &TypeChecker{
+var TypeCheckerUint64 = &Checker{
 	Type: TypeUint64,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Uint64, nil
 	},
 }
 
 //TypeCheckerFloat32 type checker for float32
-var TypeCheckerFloat32 = &TypeChecker{
+var TypeCheckerFloat32 = &Checker{
 	Type: TypeFloat32,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Float32, nil
 	},
 }
 
 //TypeCheckerFloat64 type checker for float64
-var TypeCheckerFloat64 = &TypeChecker{
+var TypeCheckerFloat64 = &Checker{
 	Type: TypeFloat64,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Float64, nil
 	},
 }
 
 //TypeCheckerStringKeyMap type checker for string key map.
-var TypeCheckerStringKeyMap = &TypeChecker{
+var TypeCheckerStringKeyMap = &Checker{
 	Type: TypeMap,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Map && rt.Key().Kind() == reflect.String, nil
 	},
 }
 
 //TypeCheckerSlice type checker for slice
-var TypeCheckerSlice = &TypeChecker{
+var TypeCheckerSlice = &Checker{
 	Type: TypeSlice,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Slice, nil
 	},
 }
 
 //TypeCheckerStruct type checker for struct
-var TypeCheckerStruct = &TypeChecker{
+var TypeCheckerStruct = &Checker{
 	Type: TypeStruct,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Struct, nil
 	},
 }
 
 //TypeCheckerEmptyInterface type checker for empty interface.
-var TypeCheckerEmptyInterface = &TypeChecker{
+var TypeCheckerEmptyInterface = &Checker{
 	Type: TypeEmptyInterface,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Interface && rt.NumMethod() == 0, nil
 	},
 }
 
 //TypeCheckerLazyLoadFunc type checker for lazy load func.
-var TypeCheckerLazyLoadFunc = &TypeChecker{
+var TypeCheckerLazyLoadFunc = &Checker{
 	Type: TypeLazyLoadFunc,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		lt := a.Config().TagLazyLoad
 		if lt == "" {
 			return false, nil
@@ -156,9 +191,9 @@ var TypeCheckerLazyLoadFunc = &TypeChecker{
 }
 
 //TypeCheckerLazyLoader type checker for lazy loader.
-var TypeCheckerLazyLoader = &TypeChecker{
+var TypeCheckerLazyLoader = &Checker{
 	Type: TypeLazyLoader,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		lt := a.Config().TagLazyLoad
 		if lt == "" {
 			return false, nil
@@ -177,9 +212,9 @@ var TypeCheckerLazyLoader = &TypeChecker{
 }
 
 //TypeCheckerPtr type checker for pointer
-var TypeCheckerPtr = &TypeChecker{
+var TypeCheckerPtr = &Checker{
 	Type: TypePtr,
-	CheckType: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
 		return rt.Kind() == reflect.Ptr, nil
 	},
 }
