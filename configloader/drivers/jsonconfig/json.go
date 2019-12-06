@@ -1,7 +1,10 @@
 package jsonconfig
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
+	"strings"
 
 	"github.com/herb-go/herbconfig/configloader"
 )
@@ -12,8 +15,27 @@ type JSONParser struct {
 }
 
 func (p *JSONParser) Parse(data []byte) (configloader.Part, error) {
+	var err error
+	r := bytes.NewBuffer(data)
+	var bytes = []byte{}
+	var line string
+	for {
+		line, err = r.ReadString(10)
+		if err != nil {
+			if err != io.EOF {
+				return nil, err
+			} else {
+				break
+			}
+		}
+		line = strings.TrimSpace(line)
+		if len(line) > 2 && line[0:2] == "//" {
+			continue
+		}
+		bytes = append(bytes, []byte(line)...)
+	}
 	var m = interface{}(nil)
-	err := json.Unmarshal(data, &m)
+	err = json.Unmarshal(bytes, &m)
 	if err != nil {
 		return nil, err
 	}

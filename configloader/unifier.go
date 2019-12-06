@@ -24,21 +24,39 @@ type Unifier interface {
 	//Return whether unify successed or any error rasied
 	Unify(a *Assembler, rv reflect.Value) (bool, error)
 }
+type Unifiers []Unifier
 
-//Unifiers unifier map grouped by type
-type Unifiers map[Type][]Unifier
-
-//Unify unify value from assembler to given interface
-//Return whether unify successed or any error rasied
-func (u *Unifiers) Unify(a *Assembler, v interface{}) (bool, error) {
-	rv := reflect.Indirect(reflect.ValueOf(v))
-
-	return u.UnifyReflectValue(a, rv)
+func (u *Unifiers) Append(unifier ...Unifier) *Unifiers {
+	*u = append(*u, unifier...)
+	return u
+}
+func (u *Unifiers) Insert(unifier ...Unifier) *Unifiers {
+	*u = Unifiers(append(unifier, *u...))
+	return u
+}
+func (u *Unifiers) Unify(a *Assembler, rv reflect.Value) (bool, error) {
+	for k := range *u {
+		ok, err := (*u)[k].Unify(a, rv)
+		if err != nil {
+			return false, err
+		}
+		if ok {
+			return ok, nil
+		}
+	}
+	return false, nil
 }
 
-//UnifyReflectValue unify value from assembler to reflect value
+func NewUnifiers() *Unifiers {
+	return &Unifiers{}
+}
+
+//GroupedUnifiers unifier map grouped by type
+type GroupedUnifiers map[Type][]Unifier
+
+//Unify unify value from assembler to reflect value
 //Return whether unify successed or any error rasied
-func (u *Unifiers) UnifyReflectValue(a *Assembler, rv reflect.Value) (bool, error) {
+func (u *GroupedUnifiers) Unify(a *Assembler, rv reflect.Value) (bool, error) {
 	tp, err := a.CheckType(rv.Type())
 	if err != nil {
 		return false, err
@@ -64,7 +82,7 @@ func (u *Unifiers) UnifyReflectValue(a *Assembler, rv reflect.Value) (bool, erro
 }
 
 //Append append unifier to last by given type
-func (u *Unifiers) Append(tp Type, unifier Unifier) *Unifiers {
+func (u *GroupedUnifiers) Append(tp Type, unifier Unifier) *GroupedUnifiers {
 	m := (*u)
 	v := m[tp]
 	v = append(v, unifier)
@@ -74,7 +92,7 @@ func (u *Unifiers) Append(tp Type, unifier Unifier) *Unifiers {
 }
 
 //AppendWith append with given unifiers
-func (u *Unifiers) AppendWith(unifiers *Unifiers) *Unifiers {
+func (u *GroupedUnifiers) AppendWith(unifiers *GroupedUnifiers) *GroupedUnifiers {
 	for k, v := range *unifiers {
 		for i := range v {
 			u.Append(k, v[i])
@@ -84,7 +102,7 @@ func (u *Unifiers) AppendWith(unifiers *Unifiers) *Unifiers {
 }
 
 //Insert insert unifier to first by given type
-func (u *Unifiers) Insert(tp Type, unifier Unifier) *Unifiers {
+func (u *GroupedUnifiers) Insert(tp Type, unifier Unifier) *GroupedUnifiers {
 	m := (*u)
 	v := []Unifier{unifier}
 	v = append(v, m[tp]...)
@@ -94,7 +112,7 @@ func (u *Unifiers) Insert(tp Type, unifier Unifier) *Unifiers {
 }
 
 //InsertWith insert with given unifiers
-func (u *Unifiers) InsertWith(unifiers *Unifiers) *Unifiers {
+func (u *GroupedUnifiers) InsertWith(unifiers *GroupedUnifiers) *GroupedUnifiers {
 	for k, v := range *unifiers {
 		for i := range v {
 			u.Append(k, v[i])
@@ -103,9 +121,9 @@ func (u *Unifiers) InsertWith(unifiers *Unifiers) *Unifiers {
 	return u
 }
 
-//NewUnifiers create new unifiers.
-func NewUnifiers() *Unifiers {
-	return &Unifiers{}
+//NewGroupedUnifiers create new unifiers.
+func NewGroupedUnifiers() *GroupedUnifiers {
+	return &GroupedUnifiers{}
 }
 
 //String interface
@@ -206,7 +224,7 @@ var UnifierSlice = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error
 	for iter != nil {
 		if iter.Step.Type() == TypeArray {
 			v := reflect.New(rv.Type().Elem()).Elem()
-			_, err = a.Config().Unifiers.UnifyReflectValue(a.WithChild(iter.Part, iter.Step), v)
+			_, err = a.Config().Unifiers.Unify(a.WithChild(iter.Part, iter.Step), v)
 			if err != nil {
 				return false, err
 			}
@@ -234,7 +252,7 @@ var UnifierMap = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) 
 	mv := reflect.MakeMap(rv.Type())
 	for iter != nil {
 		miv := reflect.New(rv.Type().Elem()).Elem()
-		_, err = a.Config().Unifiers.UnifyReflectValue(a.WithChild(iter.Part, iter.Step), miv)
+		_, err = a.Config().Unifiers.Unify(a.WithChild(iter.Part, iter.Step), miv)
 		if err != nil {
 			return false, err
 		}
@@ -449,7 +467,7 @@ func (d *structData) WalkStruct(rv reflect.Value) (bool, error) {
 		if !ok {
 			continue
 		}
-		_, err = a.Config().Unifiers.UnifyReflectValue(a.WithChild(part, NewFieldStep(&field)), fv)
+		_, err = a.Config().Unifiers.Unify(a.WithChild(part, NewFieldStep(&field)), fv)
 		if err != nil {
 			return false, err
 		}
@@ -523,12 +541,12 @@ var UnifierPtr = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) 
 	if err != nil {
 		return false, err
 	}
-	return a.Config().Unifiers.UnifyReflectValue(a, v.Elem())
+	return a.Config().Unifiers.Unify(a, v.Elem())
 })
 
 //DefaultCommonUnifiers return default common unifiers
-func DefaultCommonUnifiers() *Unifiers {
-	var u = NewUnifiers()
+func DefaultCommonUnifiers() *GroupedUnifiers {
+	var u = NewGroupedUnifiers()
 	u.Append(TypeBool, UnifierBool)
 	u.Append(TypeString, UnifierString)
 	u.Append(TypeInt, UnifierNumber)
@@ -548,4 +566,4 @@ func DefaultCommonUnifiers() *Unifiers {
 }
 
 //CommonUnifiers common unifiers user in NewCommonConfig
-var CommonUnifiers = NewUnifiers().AppendWith(DefaultCommonUnifiers())
+var CommonUnifiers = NewGroupedUnifiers().AppendWith(DefaultCommonUnifiers())

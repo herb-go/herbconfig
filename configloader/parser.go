@@ -22,7 +22,7 @@ func (l *ConfigLoader) SetAssemblerConfig(c *Config) *ConfigLoader {
 func (l *ConfigLoader) Load(data []byte, v interface{}) error {
 	part, err := l.parser.Parse(data)
 	if err != nil {
-		return nil
+		return err
 	}
 	_, err = l.Assembler.WithPart(part).Assemble(v)
 	return err
@@ -49,38 +49,3 @@ func LoadConfig(name string, data []byte, v interface{}) error {
 	}
 	return c.Load(data, v)
 }
-
-// var parserConfigs = map[string]*Config{}
-
-// //RegisterParser register config loader with given name.
-// func RegisterParser(name string, p Parser) {
-// 	registeredParsers[name] = p
-// }
-
-// func ConfigParser(name string, c *Config) {
-// 	parserConfigs[name] = c
-// }
-
-// //UnregisterAllParsers unreister all config loaders.
-// func UnregisterAllParsers() {
-// 	registeredParsers = map[string]Parser{}
-// }
-
-// //LoadConfig load byte slice to data by given munarshaler.
-// //Return any error if raised
-// func LoadConfig(name string, data []byte, v interface{}) error {
-// 	p := registeredParsers[name]
-// 	if p == nil {
-// 		return fmt.Errorf("configloader : %w (%s)", ErrParserNotRegistered, name)
-// 	}
-// 	c := parserConfigs[name]
-// 	// if c==nil{
-// 	// 	c=
-// 	// }
-// 	part, err := p.Parse(data)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return
-// 	// return u.LoadConfig(data, v)
-// }

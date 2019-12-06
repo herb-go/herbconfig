@@ -6,12 +6,6 @@ type TypeChecker interface {
 	CheckType(a *Assembler, rt reflect.Type) (Type, error)
 }
 
-type TypeCheckerFunc func(a *Assembler, rt reflect.Type) (Type, error)
-
-func (c TypeCheckerFunc) CheckType(a *Assembler, rt reflect.Type) (Type, error) {
-	return c(a, rt)
-}
-
 type Checker struct {
 	Type    Type
 	Checker func(a *Assembler, rt reflect.Type) (bool, error)

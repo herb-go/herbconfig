@@ -22,6 +22,7 @@ func TestJSON(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	bytes = []byte("//commtent\n" + string(bytes))
 	err = configloader.LoadConfig(DefaultConfigLoaderName, bytes, data)
 	if err != nil {
 		t.Fatal(err)

@@ -60,8 +60,8 @@ func (c *Config) GetTag(structType reflect.Type, field reflect.StructField) (*Ta
 func NewConfig() *Config {
 	return &Config{
 		TagParser:    ParseTag,
-		Unifiers:     &Unifiers{},
-		Checkers:     &TypeCheckers{},
+		Unifiers:     NewUnifiers(),
+		Checkers:     NewTypeCheckers(),
 		TagLazyLoad:  "lazyload",
 		TagAnonymous: "anonymous",
 	}
@@ -74,4 +74,9 @@ func NewCommonConfig() *Config {
 	c.Checkers.Append(CommonTypeCheckers)
 	c.Unifiers.Append(CommonUnifiers)
 	return c
+}
+
+func InitCommon() {
+	CommonUnifiers = DefaultCommonUnifiers()
+	CommonTypeCheckers = DefaultCommonTypeCheckers()
 }

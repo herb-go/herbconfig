@@ -26,7 +26,8 @@ func (a *Assembler) Assemble(v interface{}) (ok bool, err error) {
 			err = NewAssemblerError(a, err)
 		}
 	}()
-	ok, err = a.config.Unifiers.Unify(a, v)
+	rv := reflect.Indirect(reflect.ValueOf(v))
+	ok, err = a.config.Unifiers.Unify(a, rv)
 	return ok, NewAssemblerError(a, err)
 }
 
