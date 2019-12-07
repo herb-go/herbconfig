@@ -9,10 +9,37 @@ import (
 var dummyUnifier = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
 	return true, nil
 })
+var nilUnifier = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
+	rv.SetString("test")
+	return true, nil
+})
 var errUnifier = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
 	return false, errors.New("err")
 })
 
+func TestNilUnifier(t *testing.T) {
+	defer func() {
+		InitCommon()
+	}()
+	InitCommon()
+	CommonUnifiers.Insert(testType, errUnifier)
+	CommonUnifiers.Insert(testType, nilUnifier)
+	c := NewCommonConfig()
+	c.Checkers.Insert(dummyTypeChecker)
+	c.Checkers.Insert(TypeCheckerPtr)
+	a := EmptyAssembler.WithConfig(c)
+	var v string
+	ok, err := a.Assemble(&v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal(ok)
+	}
+	if v != "test" {
+		t.Fatal(v)
+	}
+}
 func TestCommonUnifier(t *testing.T) {
 	defer func() {
 		InitCommon()
