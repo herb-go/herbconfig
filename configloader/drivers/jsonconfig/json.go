@@ -19,14 +19,10 @@ func (p *JSONParser) Parse(data []byte) (configloader.Part, error) {
 	r := bytes.NewBuffer(data)
 	var bytes = []byte{}
 	var line string
-	for {
+	for err != io.EOF {
 		line, err = r.ReadString(10)
-		if err != nil {
-			if err != io.EOF {
-				return nil, err
-			} else {
-				break
-			}
+		if err != nil && err != io.EOF {
+			return nil, err
 		}
 		line = strings.TrimSpace(line)
 		if len(line) > 2 && line[0:2] == "//" {
