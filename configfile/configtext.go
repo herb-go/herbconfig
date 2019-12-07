@@ -21,7 +21,7 @@ func (f ConfigText) AbsolutePath() string {
 func (f ConfigText) ID() string {
 	return "text://" + html.EscapeString(string(f))
 }
-func (f ConfigText) Watcher() FileWatcher {
+func (f ConfigText) Watcher() Watcher {
 	return nil
 }
 

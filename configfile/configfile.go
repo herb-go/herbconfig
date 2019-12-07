@@ -11,7 +11,7 @@ type ConfigFile interface {
 	WriteRaw([]byte, os.FileMode) error
 	AbsolutePath() string
 	ID() string
-	Watcher() FileWatcher
+	Watcher() Watcher
 }
 
 func ReadFile(file ConfigFile) ([]byte, error) {

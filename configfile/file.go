@@ -28,7 +28,7 @@ func (f File) ID() string {
 	}
 	return u.String()
 }
-func (f File) Watcher() FileWatcher {
+func (f File) Watcher() Watcher {
 	return nil
 }
 
