@@ -66,7 +66,10 @@ func (w *Watcher) Watch(cf configuration.Configuration, callback func()) (unwatc
 	if path != "" {
 		if w.registeredFuncs[path] == nil {
 			w.registeredFuncs[path] = []*func(){&callback}
-			w.fswatcher.Add(path)
+			err := w.fswatcher.Add(path)
+			if err != nil {
+				return nil, err
+			}
 		} else {
 			w.registeredFuncs[path] = append(w.registeredFuncs[path], &callback)
 		}
@@ -93,7 +96,7 @@ func (w *Watcher) unwatch(path string, cb *func()) func() {
 func (w *Watcher) On(e *Event) {
 	w.locker.Lock()
 	defer w.locker.Unlock()
-	if e.IsWrite() || e.IsCreate() {
+	if e.IsWrite() {
 		fns := w.registeredFuncs[e.Path()]
 		for k := range fns {
 			(*fns[k])()
@@ -122,7 +125,9 @@ func (w *Watcher) StartWatching() error {
 }
 func (w *Watcher) StopWatching() error {
 	close(w.c)
-	close(w.errc)
+	go func() {
+		close(w.errc)
+	}()
 	return w.fswatcher.Close()
 }
 func (w *Watcher) ErrorChan() chan error {
