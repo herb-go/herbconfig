@@ -1,4 +1,4 @@
-package fsnotidywatcher
+package fsnotifywatcher
 
 import (
 	"sync"

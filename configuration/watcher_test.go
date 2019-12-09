@@ -35,6 +35,7 @@ func (w *testWatcher) Watch(cf Configuration, callback func()) (unwatcher func()
 	}, nil
 }
 func (w *testWatcher) Init() error {
+	w.watched = nil
 	return nil
 }
 func (w *testWatcher) StartWatching() error {
@@ -147,6 +148,33 @@ func TestUnwatch(t *testing.T) {
 	}
 }
 
+func TestReset(t *testing.T) {
+	var result = []interface{}{}
+	wm := NewWatchManager()
+	tm := newTestWatcher()
+	m := NewSchemeWatcher("text", tm)
+	wm.RegisterWatcher(m)
+	text, err := New("text://test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	uw, err := wm.Watch(text, func() {
+		result = append(result, text)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if uw == nil {
+		t.Fatal(wm)
+	}
+	err = wm.Reset()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(tm.watched) != 0 {
+		t.Fatal(tm)
+	}
+}
 func TestStartAndStop(t *testing.T) {
 	var result = []interface{}{}
 	wm := NewWatchManager()

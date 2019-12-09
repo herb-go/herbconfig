@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -18,7 +19,7 @@ type SchemeWatcher struct {
 }
 
 func (w *SchemeWatcher) Watch(cf Configuration, callback func()) (unwatcher func(), err error) {
-	if strings.HasPrefix(cf.ID()+"://", w.Scheme) {
+	if strings.HasPrefix(cf.ID(), w.Scheme+"://") {
 		return w.Watcher.Watch(cf, callback)
 	}
 	return nil, nil
@@ -91,7 +92,15 @@ func (w *WatchManager) Stop() error {
 	}
 	close(w.c)
 	return nil
-
+}
+func (w *WatchManager) Reset() error {
+	for _, v := range w.registeredWatchers {
+		err := v.Init()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 func (w *WatchManager) Unwatch() {
 	for _, v := range w.Unwatchers {
@@ -106,6 +115,7 @@ func (w *WatchManager) Watch(cf Configuration, callback func()) (unwatcher func(
 			return nil, err
 		}
 		if uw != nil {
+			fmt.Println("watched")
 			w.AddUnwatcher(cf, uw)
 			return uw, nil
 		}
