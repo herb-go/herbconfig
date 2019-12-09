@@ -377,6 +377,7 @@ type structData struct {
 //Load will fail if iter is nil
 func (d *structData) LoadValues() (bool, error) {
 	a := d.assembler
+
 	iter, err := a.Part().Iter()
 	if err != nil {
 		return false, err
@@ -384,6 +385,7 @@ func (d *structData) LoadValues() (bool, error) {
 	if iter == nil {
 		return false, nil
 	}
+
 	d.valuemap = map[string]Part{}
 	d.civaluemap = map[string]Part{}
 	ci := !a.Config().CaseSensitive
@@ -491,6 +493,14 @@ func newStructData() *structData {
 
 //UnifierStruct unifier for struct
 var UnifierStruct = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
+	v, err := a.Part().Value()
+	if err != nil {
+		return false, err
+	}
+	if v == nil {
+		return true, nil
+	}
+
 	sd := newStructData()
 	sd.assembler = a
 	ok, err := sd.LoadValues()
@@ -498,11 +508,10 @@ var UnifierStruct = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, erro
 		return false, err
 	}
 	if ok == false {
-		v, err := a.Part().Value()
-		if err != nil {
-			return false, err
-		}
 		prv := reflect.Indirect(reflect.ValueOf(v))
+		if prv.Kind() != reflect.Struct {
+			return false, nil
+		}
 		err = SetValue(rv, prv)
 		if err != nil {
 			return false, err

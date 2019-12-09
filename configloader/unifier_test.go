@@ -66,3 +66,22 @@ func TestCommonUnifier(t *testing.T) {
 		t.Fatal(ok)
 	}
 }
+
+func TestEmptyMap(t *testing.T) {
+	defer func() {
+		InitCommon()
+	}()
+	InitCommon()
+	var m map[string]interface{}
+	var i interface{} = m
+	c := NewCommonConfig()
+	a := EmptyAssembler.WithConfig(c).WithPart(NewMapPart(i))
+	v := &testDummyStruct{}
+	ok, err := a.Assemble(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
+		t.Fatal(ok)
+	}
+}

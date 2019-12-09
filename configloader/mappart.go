@@ -22,6 +22,9 @@ func (d *MapPart) Value() (interface{}, error) {
 	return d.value, nil
 }
 func (d *MapPart) mapIter(rt reflect.Type, rv reflect.Value) (*PartIter, error) {
+	if rv.Len() == 0 {
+		return nil, nil
+	}
 	mes := mapElements{}
 	iter := rv.MapRange()
 	keykind := rt.Key().Kind()
@@ -61,6 +64,9 @@ func (d *MapPart) Iter() (*PartIter, error) {
 	v, err := d.Value()
 	if err != nil {
 		return nil, err
+	}
+	if v == nil {
+		return nil, nil
 	}
 	rt := reflect.TypeOf(v)
 	rv := reflect.ValueOf(v)

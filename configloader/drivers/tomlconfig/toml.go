@@ -1,7 +1,9 @@
 package tomlconfig
 
-import "github.com/BurntSushi/toml"
-import "github.com/herb-go/herbconfig/configloader"
+import (
+	"github.com/BurntSushi/toml"
+	"github.com/herb-go/herbconfig/configloader"
+)
 
 const DefaultConfigLoaderName = "toml"
 

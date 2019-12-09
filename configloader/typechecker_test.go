@@ -9,6 +9,7 @@ import (
 var testType = Type("configloader_test.test")
 
 type testDummyStruct struct {
+	Value string
 }
 
 var dummyTypeChecker = &Checker{
