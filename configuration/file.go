@@ -1,20 +1,15 @@
-package configfile
+package configuration
 
 import (
 	"html"
 	"io/ioutil"
 	"net/url"
-	"os"
 )
 
 type File string
 
 func (f File) ReadRaw() ([]byte, error) {
 	return ioutil.ReadFile(f.AbsolutePath())
-}
-
-func (f File) WriteRaw(data []byte, perm os.FileMode) error {
-	return ioutil.WriteFile(f.AbsolutePath(), data, perm)
 }
 
 func (f File) AbsolutePath() string {
@@ -28,12 +23,9 @@ func (f File) ID() string {
 	}
 	return u.String()
 }
-func (f File) Watcher() Watcher {
-	return nil
-}
 
 func registerLocalFileCreator() {
-	RegisterCreator("file", func(id string) (ConfigFile, error) {
+	RegisterCreator("file", func(id string) (Configuration, error) {
 		u, err := url.Parse(id)
 		if err != nil {
 			return nil, err

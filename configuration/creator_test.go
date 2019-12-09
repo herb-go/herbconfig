@@ -1,4 +1,4 @@
-package configfile
+package configuration
 
 import "testing"
 
@@ -25,7 +25,7 @@ func TestFileCreator(t *testing.T) {
 		t.Fatal(file.ID())
 	}
 
-	textfile := ConfigText("test")
+	textfile := Text("test")
 	file, err = New(textfile.ID())
 	if !IsSame(textfile, file) {
 		t.Fatal(file.ID())

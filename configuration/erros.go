@@ -1,4 +1,4 @@
-package configfile
+package configuration
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 type ErrorType string
 
 const ErrTypeFileObjectSchemeNotavaliable = ErrorType("schemenotavaliable")
-const ErrTypeFileObjectNotWriteable = ErrorType("notwriteable")
 
 type FileObjectError struct {
 	Type   ErrorType
@@ -22,14 +21,6 @@ func NewFileObjectSchemeError(id string) error {
 	return &FileObjectError{
 		Type:   ErrTypeFileObjectSchemeNotavaliable,
 		Msg:    "file scheme of file object \"%s\" is not avaliable",
-		FileID: id,
-	}
-}
-
-func NewFileObjectNotWriteableError(id string) error {
-	return &FileObjectError{
-		Type:   ErrTypeFileObjectNotWriteable,
-		Msg:    "file object \"%s\" is not writeable",
 		FileID: id,
 	}
 }

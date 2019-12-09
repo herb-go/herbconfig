@@ -1,4 +1,4 @@
-package configfile
+package configuration
 
 import (
 	"fmt"
@@ -19,14 +19,6 @@ func TestErrors(t *testing.T) {
 		t.Fatal(err)
 	}
 	errmsg := err.Error()
-	if !strings.Contains(errmsg, "testid") {
-		t.Fatal(errmsg)
-	}
-	err = NewFileObjectNotWriteableError("testid")
-	if GetErrorType(err) != ErrTypeFileObjectNotWriteable {
-		t.Fatal(err)
-	}
-	errmsg = err.Error()
 	if !strings.Contains(errmsg, "testid") {
 		t.Fatal(errmsg)
 	}

@@ -1,4 +1,4 @@
-package configfile
+package configuration
 
 import (
 	"io/ioutil"
@@ -19,7 +19,7 @@ func TestFile(t *testing.T) {
 	file.Close()
 	defer os.Remove(name)
 	file1 := File(name)
-	data, err := ReadFile(file1)
+	data, err := Read(file1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,20 +29,6 @@ func TestFile(t *testing.T) {
 
 	if file1.AbsolutePath() == "" {
 		t.Fatal(file1.AbsolutePath())
-	}
-	if file1.Watcher() != nil {
-		t.Fatal(file1.Watcher())
-	}
-	err = WriteFile(file1, []byte("testcontentupdated"), 0700)
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err = ReadFile(file1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(data) != "testcontentupdated" {
-		t.Fatal(string(data))
 	}
 	file2 := File(name + ".notexists")
 
