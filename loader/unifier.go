@@ -5,6 +5,16 @@ import (
 	"strings"
 )
 
+func indirectReflectValue(rv reflect.Value) reflect.Value {
+	if rv.IsZero() {
+		return rv
+	}
+	if rv.Type().Kind() == reflect.Ptr {
+		return indirectReflectValue(rv.Elem())
+	}
+	return rv
+}
+
 //SetValue set src value to dst.
 //return any error if rasied
 func SetValue(dst, src reflect.Value) error {
@@ -38,7 +48,7 @@ func (u *Unifiers) Unify(a *Assembler, rv reflect.Value) (bool, error) {
 	for k := range *u {
 		ok, err := (*u)[k].Unify(a, rv)
 		if err != nil {
-			return false, err
+			return false, NewAssemblerError(a, err)
 		}
 		if ok {
 			return ok, nil
@@ -165,7 +175,7 @@ var UnifierString = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, erro
 	}
 	s, ok := v.(string)
 	if ok {
-		err = SetValue(rv, reflect.ValueOf(s))
+		err = SetValue(rv, reflect.ValueOf(s).Convert(rv.Type()))
 		if err != nil {
 			return false, err
 		}
@@ -403,11 +413,15 @@ func (d *structData) LoadValues() (bool, error) {
 	return true, nil
 }
 
+func indirectReflectType(rt reflect.Type) reflect.Type {
+	if rt.Kind() == reflect.Ptr {
+		return indirectReflectType(rt.Elem())
+	}
+	return rt
+}
+
 //IsAnonymous return if given field with tag is anonymous
 func (d *structData) IsAnonymous(field reflect.StructField, tag *Tag) bool {
-	if field.Type.Kind() != reflect.Struct {
-		return false
-	}
 	if tag.Ignored || tag.Name != "" {
 		return false
 	}
@@ -427,11 +441,26 @@ func (d *structData) IsAnonymous(field reflect.StructField, tag *Tag) bool {
 
 //WalkStruct walk struct fields of given reflect value and set field values
 func (d *structData) WalkStruct(rv reflect.Value) (bool, error) {
+	if rv.Type().Kind() == reflect.Ptr {
+		elemv := reflect.New(rv.Type().Elem())
+		ok, err := d.WalkStruct(elemv.Elem())
+		if ok == false || err != nil {
+			return ok, err
+		}
+		err = SetValue(rv, elemv)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+	if rv.Type().Kind() != reflect.Struct {
+		return false, nil
+	}
 	a := d.assembler
 	rt := rv.Type()
 	fl := rt.NumField()
 	ci := !a.Config().CaseSensitive
-	value := reflect.New(rt).Elem()
+	value := reflect.Indirect(rv)
 	for i := 0; i < fl; i++ {
 		var part Part
 		var ok bool
@@ -448,7 +477,7 @@ func (d *structData) WalkStruct(rv reflect.Value) (bool, error) {
 			continue
 		}
 		if d.IsAnonymous(field, tag) {
-			_, err := d.WalkStruct(fv)
+			_, err := d.WalkStruct(indirectReflectValue(fv))
 			if err != nil {
 				return false, err
 			}
@@ -550,7 +579,7 @@ var UnifierPtr = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) 
 	if err != nil {
 		return false, err
 	}
-	return a.Config().Unifiers.Unify(a, v.Elem())
+	return a.Config().Unifiers.Unify(a, rv.Elem())
 })
 
 //DefaultCommonUnifiers return default common unifiers

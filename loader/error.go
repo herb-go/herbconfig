@@ -27,6 +27,9 @@ func NewAssemblerError(a *Assembler, err error) error {
 	if err == nil {
 		return nil
 	}
+	if _, ok := err.(*AssemblerError); ok {
+		return err
+	}
 	return &AssemblerError{
 		a:   a,
 		err: err,
@@ -35,7 +38,7 @@ func NewAssemblerError(a *Assembler, err error) error {
 
 //Error show error with assembler info
 func (e *AssemblerError) Error() string {
-	return fmt.Sprintf("loader: error: %s (%s)", e.err.Error(), ConvertPathToString(e.a.Path()))
+	return fmt.Sprintf("loader: error: %s (field: \"%s\")", e.err.Error(), ConvertPathToString(e.a.Path()))
 }
 
 //ErrConfigLoaderNotRegistered error raised when parser not registered.

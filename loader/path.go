@@ -177,7 +177,10 @@ func ConvertPathToString(p Path) string {
 	var step Step
 	for p != nil {
 		step, p = p.Pop()
-		results = append(results, step.String())
+		if step == nil {
+			break
+		}
+		results = append([]string{step.String()}, results...)
 	}
 	return strings.Join(results, ".")
 }

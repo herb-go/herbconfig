@@ -23,4 +23,15 @@ func TestTimeDurationType(t *testing.T) {
 	if td != time.Second {
 		t.Fatal(td)
 	}
+	td = time.Duration(0)
+	part = loader.NewMapPart("")
+	a = loader.EmptyAssembler.WithConfig(loader.NewCommonConfig()).WithPart(part)
+	ok, err = a.Assemble(&td)
+	if ok == false || err != nil {
+		t.Fatal(ok, err)
+	}
+	if td != 0 {
+		t.Fatal(td)
+	}
+
 }

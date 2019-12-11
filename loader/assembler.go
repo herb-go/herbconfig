@@ -28,7 +28,7 @@ func (a *Assembler) Assemble(v interface{}) (ok bool, err error) {
 	}()
 	rv := reflect.Indirect(reflect.ValueOf(v))
 	ok, err = a.config.Unifiers.Unify(a, rv)
-	return ok, NewAssemblerError(a, err)
+	return ok, err
 }
 
 //CheckType check given reflect type type.
@@ -49,15 +49,24 @@ func (a *Assembler) WithConfig(c *Config) *Assembler {
 
 //WithPart create new assembler with given part
 func (a *Assembler) WithPart(p Part) *Assembler {
-	return a.WithChild(p, nil)
+	return &Assembler{
+		config: a.config,
+		part:   p,
+		path:   nil,
+		step:   nil,
+	}
 }
 
 //WithChild create assembler with given child part and step
 func (a *Assembler) WithChild(p Part, step Step) *Assembler {
+	path := a.path
+	if path == nil {
+		path = NewSteps()
+	}
 	return &Assembler{
 		config: a.config,
 		part:   p,
-		path:   a.path.Join(step),
+		path:   path.Join(step),
 		step:   step,
 	}
 }

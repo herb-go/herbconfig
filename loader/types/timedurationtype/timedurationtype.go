@@ -21,7 +21,7 @@ var UnifierTimeDuration = loader.UnifierFunc(func(a *loader.Assembler, rv reflec
 
 	}
 	if *strptr == "" {
-		return false, nil
+		return true, nil
 	}
 	d, err := time.ParseDuration(*strptr)
 	if err != nil {

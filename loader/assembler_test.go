@@ -144,7 +144,7 @@ type testStruct struct {
 	FieldSMap  interface{} `config:"FieldStringMap"`
 	FieldSlice interface{}
 
-	Anonymous
+	*Anonymous
 	NamedAnonymous `config:"NamedAnonymousNotExist"`
 	ExistAnonymous
 	CIExistAnonymous
@@ -315,7 +315,7 @@ func TestAssembler(t *testing.T) {
 		t.Fatal(v)
 	}
 
-	if v.Anonymous.AnonymousValue != "AnonymousValueStr" {
+	if v.Anonymous == nil || v.Anonymous.AnonymousValue != "AnonymousValueStr" {
 		t.Fatal(v)
 	}
 	if v.NamedAnonymous.NamedAnonymousValue != "" {
