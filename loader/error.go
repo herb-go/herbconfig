@@ -43,3 +43,6 @@ func (e *AssemblerError) Error() string {
 
 //ErrConfigLoaderNotRegistered error raised when parser not registered.
 var ErrConfigLoaderNotRegistered = errors.New("config loader not registered")
+
+//ErrNotPtr error raised when value to load is not a pointer
+var ErrNotPtr = errors.New("value to load is not a pointer")

@@ -155,7 +155,14 @@ func TestAssembler(t *testing.T) {
 	c := NewCommonConfig()
 	a := EmptyAssembler.WithConfig(c).WithPart(NewMapPart(testData))
 	v := &testStruct{}
-	ok, err := a.Assemble(v)
+	ok, err := a.Assemble(*v)
+	if ok == true {
+		t.Fatal(ok)
+	}
+	if err != ErrNotPtr {
+		t.Fatal(err)
+	}
+	ok, err = a.Assemble(v)
 	if err != nil {
 		t.Fatal(err)
 	}

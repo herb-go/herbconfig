@@ -26,8 +26,11 @@ func (a *Assembler) Assemble(v interface{}) (ok bool, err error) {
 			err = NewAssemblerError(a, err)
 		}
 	}()
-	rv := reflect.Indirect(reflect.ValueOf(v))
-	ok, err = a.config.Unifiers.Unify(a, rv)
+	rv := reflect.ValueOf(v)
+	if rv.IsZero() || rv.Type().Kind() != reflect.Ptr {
+		return false, ErrNotPtr
+	}
+	ok, err = a.config.Unifiers.Unify(a, reflect.Indirect(rv))
 	return ok, err
 }
 
