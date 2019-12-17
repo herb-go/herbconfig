@@ -13,19 +13,30 @@ var rtypeTimeDuration = reflect.TypeOf(time.Duration(0))
 
 //UnifierTimeDuration unifier for time field
 var UnifierTimeDuration = loader.UnifierFunc(func(a *loader.Assembler, rv reflect.Value) (bool, error) {
+	var d time.Duration
 	str := ""
 	strptr := &str
 	ok, err := loader.UnifierString.Unify(a, reflect.ValueOf(strptr).Elem())
-	if ok == false || err != nil {
+	if err != nil {
 		return false, nil
 
 	}
-	if *strptr == "" {
-		return true, nil
-	}
-	d, err := time.ParseDuration(*strptr)
-	if err != nil {
-		return false, nil
+	if ok {
+		if *strptr == "" {
+			return true, nil
+		}
+		d, err = time.ParseDuration(*strptr)
+		if err != nil {
+			return false, nil
+		}
+	} else {
+		var i64 int64
+		intptr := &i64
+		ok, err = loader.UnifierNumber.Unify(a, reflect.ValueOf(intptr).Elem())
+		if ok == false || err != nil {
+			return false, nil
+		}
+		d = time.Duration(*intptr * int64(time.Second))
 	}
 	err = loader.SetValue(rv, reflect.ValueOf(d))
 	if err != nil {
