@@ -1,7 +1,6 @@
 package source
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -115,7 +114,6 @@ func (w *WatchManager) Watch(s Source, callback func()) (unwatcher func(), err e
 			return nil, err
 		}
 		if uw != nil {
-			fmt.Println("watched")
 			w.AddUnwatcher(s, uw)
 			return uw, nil
 		}
