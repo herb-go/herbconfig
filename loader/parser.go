@@ -49,3 +49,11 @@ func LoadConfig(name string, data []byte, v interface{}) error {
 	}
 	return c.Load(data, v)
 }
+
+//NewLoader create new data loader with given driver name and data
+//Return loader and any error if raised
+func NewLoader(name string, data []byte) func(v interface{}) error {
+	return func(v interface{}) error {
+		return LoadConfig(name, data, v)
+	}
+}

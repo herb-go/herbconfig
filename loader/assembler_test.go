@@ -27,8 +27,9 @@ var testData = map[string]interface{}{
 	"FieldBool":    true,
 	"FieldBoolPtr": true,
 
-	"FieldString":    "str",
-	"FieldStringPtr": "str2",
+	"FieldString":         "str",
+	"FieldStringPtr":      "str2",
+	"FieldEmptyStringPtr": nil,
 
 	"FieldStringSlice":    []string{"elem1", "elem2"},
 	"FieldStringSlicePtr": []string{"elem3", "elem4"},

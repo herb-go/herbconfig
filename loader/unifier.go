@@ -574,8 +574,15 @@ var UnifierLazyLoader = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, 
 
 //UnifierPtr unifier for pointer
 var UnifierPtr = UnifierFunc(func(a *Assembler, rv reflect.Value) (bool, error) {
+	av, err := a.Part().Value()
+	if err != nil {
+		return false, err
+	}
+	if av == nil {
+		return true, nil
+	}
 	v := reflect.New(rv.Type().Elem())
-	err := SetValue(rv, v)
+	err = SetValue(rv, v)
 	if err != nil {
 		return false, err
 	}
