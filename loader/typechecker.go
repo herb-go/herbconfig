@@ -181,6 +181,7 @@ var TypeCheckerLazyLoadFunc = &Checker{
 			return false, err
 		}
 		ok := rv.Type().Kind() == reflect.Func && tag != nil && tag.Flags[lt] != ""
+		//init value for avoid panic when config data omit.
 		if ok && rv.IsNil() {
 			rv.Set(NopLazyLoadFunc)
 		}
@@ -206,6 +207,7 @@ var TypeCheckerLazyLoader = &Checker{
 			return false, err
 		}
 		ok := rv.Type().Kind() == reflect.Interface && tag != nil && tag.Flags[lt] != ""
+		//init value for avoid panic when config data omit.
 		if ok && rv.IsNil() {
 			rv.Set(NopLazyLoader)
 		}

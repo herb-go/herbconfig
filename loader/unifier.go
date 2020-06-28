@@ -470,6 +470,7 @@ func (d *structData) WalkStruct(rv reflect.Value) (bool, error) {
 		}
 		step := NewFieldStep(&field)
 		fv := value.Field(i)
+		//Call checktype to verify type and init value if necessary(for example,lazyloader and lazyloadfunc)
 		tp, err := a.WithChild(nil, step).CheckType(fv)
 		if err != nil {
 			return false, err
