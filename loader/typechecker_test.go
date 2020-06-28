@@ -14,14 +14,14 @@ type testDummyStruct struct {
 
 var dummyTypeChecker = &Checker{
 	Type: testType,
-	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rv reflect.Value) (bool, error) {
 		return true, nil
 	},
 }
 
 var errTypeChecker = &Checker{
 	Type: testType,
-	Checker: func(a *Assembler, rt reflect.Type) (bool, error) {
+	Checker: func(a *Assembler, rv reflect.Value) (bool, error) {
 		return false, errors.New("err")
 	},
 }
@@ -33,8 +33,8 @@ func TestCommonTypeCheckers(t *testing.T) {
 	InitCommon()
 	c := NewCommonConfig()
 	a := EmptyAssembler.WithConfig(c)
-	rt := reflect.TypeOf(testDummyStruct{})
-	tp, err := c.Checkers.CheckType(a, rt)
+	rv := reflect.ValueOf(testDummyStruct{})
+	tp, err := c.Checkers.CheckType(a, rv)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestCommonTypeCheckers(t *testing.T) {
 		t.Fatal(tp)
 	}
 	CommonTypeCheckers.Insert(errTypeChecker)
-	tp, err = c.Checkers.CheckType(a, rt)
+	tp, err = c.Checkers.CheckType(a, rv)
 	if err == nil {
 		t.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func TestCommonTypeCheckers(t *testing.T) {
 		t.Fatal(tp)
 	}
 	CommonTypeCheckers.Insert(dummyTypeChecker)
-	tp, err = c.Checkers.CheckType(a, rt)
+	tp, err = c.Checkers.CheckType(a, rv)
 	if err != nil {
 		t.Fatal(err)
 	}

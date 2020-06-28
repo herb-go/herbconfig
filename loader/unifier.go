@@ -67,7 +67,7 @@ type GroupedUnifiers map[Type][]Unifier
 //Unify unify value from assembler to reflect value
 //Return whether unify successed or any error rasied
 func (u *GroupedUnifiers) Unify(a *Assembler, rv reflect.Value) (bool, error) {
-	tp, err := a.CheckType(rv.Type())
+	tp, err := a.CheckType(rv)
 	if err != nil {
 		return false, err
 	}
@@ -468,7 +468,15 @@ func (d *structData) WalkStruct(rv reflect.Value) (bool, error) {
 		if field.PkgPath != "" {
 			continue
 		}
+		step := NewFieldStep(&field)
 		fv := value.Field(i)
+		tp, err := a.WithChild(nil, step).CheckType(fv)
+		if err != nil {
+			return false, err
+		}
+		if tp == TypeUnkonwn {
+			continue
+		}
 		tag, err := a.Config().GetTag(rt, field)
 		if err != nil {
 			return false, err
@@ -498,7 +506,7 @@ func (d *structData) WalkStruct(rv reflect.Value) (bool, error) {
 		if !ok {
 			continue
 		}
-		_, err = a.Config().Unifiers.Unify(a.WithChild(part, NewFieldStep(&field)), fv)
+		_, err = a.Config().Unifiers.Unify(a.WithChild(part, step), fv)
 		if err != nil {
 			return false, err
 		}

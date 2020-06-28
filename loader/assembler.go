@@ -36,8 +36,8 @@ func (a *Assembler) Assemble(v interface{}) (ok bool, err error) {
 
 //CheckType check given reflect type type.
 //Return type and any error if raised.
-func (a *Assembler) CheckType(rt reflect.Type) (tp Type, err error) {
-	return a.Config().Checkers.CheckType(a, rt)
+func (a *Assembler) CheckType(rv reflect.Value) (tp Type, err error) {
+	return a.Config().Checkers.CheckType(a, rv)
 }
 
 //WithConfig create new assembler with given config

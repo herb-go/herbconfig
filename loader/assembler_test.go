@@ -139,12 +139,13 @@ type testStruct struct {
 	FieldStringMapPtr      *map[string]interface{}
 	FieldEmptyStringMapPtr *map[string]interface{}
 	LazyLoadFunc           func(v interface{}) error `config:", lazyload"`
+	NilLazyLoadFunc        func(v interface{}) error `config:", lazyload"`
 	NamedLazyLoader        LazyLoader                `config:"LazyLoader,lazyload"`
-
-	FieldMap   interface{}
-	FieldSMap  interface{} `config:"FieldStringMap"`
-	FieldSlice interface{}
-
+	NilLazyLoader          LazyLoader                `config:", lazyload"`
+	FieldMap               interface{}
+	FieldSMap              interface{} `config:"FieldStringMap"`
+	FieldSlice             interface{}
+	FieldNotExist          interface{}
 	*Anonymous
 	NamedAnonymous `config:"NamedAnonymousNotExist"`
 	ExistAnonymous
@@ -310,6 +311,18 @@ func TestAssembler(t *testing.T) {
 	if lazyloaderesult != "loader" {
 		t.Fatal(lazyloaderesult)
 	}
+	if v.NilLazyLoadFunc == nil {
+		t.Fatal(v)
+	}
+	if err := v.NilLazyLoadFunc(&lazyloaderesult); err != nil {
+		t.Fatal(err)
+	}
+	if v.NilLazyLoader == nil {
+		t.Fatal(v)
+	}
+	if err := v.NilLazyLoader.LazyLoadConfig(&lazyloaderesult); err != nil {
+		t.Fatal(err)
+	}
 	if v.NamedValue != "value" {
 		t.Fatal(v)
 	}
@@ -333,6 +346,9 @@ func TestAssembler(t *testing.T) {
 		t.Fatal(v)
 	}
 	if v.CIExistAnonymous.CIExistAnonymousValue != "CIExistAnonymousValueStr" {
+		t.Fatal(v)
+	}
+	if v.FieldNotExist != nil {
 		t.Fatal(v)
 	}
 	m, ok := v.FieldMap.(map[interface{}]interface{})
