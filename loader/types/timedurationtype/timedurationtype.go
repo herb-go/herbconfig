@@ -48,8 +48,8 @@ var UnifierTimeDuration = loader.UnifierFunc(func(a *loader.Assembler, rv reflec
 //TypeCheckerTimeDuration type checker for int64
 var TypeCheckerTimeDuration = &loader.Checker{
 	Type: TypeTimeDuration,
-	Checker: func(a *loader.Assembler, rt reflect.Type) (bool, error) {
-		return rt == rtypeTimeDuration, nil
+	Checker: func(a *loader.Assembler, rv reflect.Value) (bool, error) {
+		return rv.Type() == rtypeTimeDuration, nil
 	},
 }
 
