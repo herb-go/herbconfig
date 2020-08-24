@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"errors"
 	"reflect"
 )
 
@@ -20,7 +21,11 @@ func (a *Assembler) Assemble(v interface{}) (ok bool, err error) {
 		if r != nil {
 			err = r.(error)
 			if err == nil {
-				panic(r)
+				if s, ok := r.(string); ok {
+					err = errors.New(s)
+				} else {
+					panic(r)
+				}
 			}
 			ok = false
 			err = NewAssemblerError(a, err)
