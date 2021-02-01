@@ -19,8 +19,8 @@ func (a *Assembler) Assemble(v interface{}) (ok bool, err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			err = r.(error)
-			if err == nil {
+			err, ok = r.(error)
+			if err == nil || !ok {
 				if s, ok := r.(string); ok {
 					err = errors.New(s)
 				} else {
